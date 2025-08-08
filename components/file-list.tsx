@@ -29,7 +29,7 @@ export default function FileList({
 	};
 	useEffect(() => {
 		fetchFiles();
-	}, [fileType, fetchFiles]);
+	}, [fileType]);
 
 	const handleDelete = async (id: string) => {
 		if (!confirm("Are you sure you want to delete this file?")) return;
