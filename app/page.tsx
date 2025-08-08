@@ -1,51 +1,111 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { Hero } from "@/components/hero";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { ConnectSupabaseSteps } from "@/components/tutorial/connect-supabase-steps";
-import { SignUpUserSteps } from "@/components/tutorial/sign-up-user-steps";
-import { hasEnvVars } from "@/lib/utils";
-import Link from "next/link";
+"use client";
+
+import { useMemo, useState } from "react";
+import FileUpload from "@/components/file-upload";
+import FileList from "@/components/file-list";
+import Dashboard from "@/components/dashboard";
 
 export default function Home() {
-  return (
-    <main className="min-h-screen flex flex-col items-center">
-      <div className="flex-1 w-full flex flex-col gap-20 items-center">
-        <nav className="w-full flex justify-center border-b border-b-foreground/10 h-16">
-          <div className="w-full max-w-5xl flex justify-between items-center p-3 px-5 text-sm">
-            <div className="flex gap-5 items-center font-semibold">
-              <Link href={"/"}>Next.js Supabase Starter</Link>
-              <div className="flex items-center gap-2">
-                <DeployButton />
-              </div>
-            </div>
-            {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
-          </div>
-        </nav>
-        <div className="flex-1 flex flex-col gap-20 max-w-5xl p-5">
-          <Hero />
-          <main className="flex-1 flex flex-col gap-6 px-4">
-            <h2 className="font-medium text-xl mb-4">Next steps</h2>
-            {hasEnvVars ? <SignUpUserSteps /> : <ConnectSupabaseSteps />}
-          </main>
-        </div>
+	const [activeTab, setActiveTab] = useState<"upload" | "files">("upload");
+	let selectedFiles: File[] = [];
+	const [dailySelectedFiles, setDailySelectedFiles] = useState<File[]>([]);
+	const [empSelectedFiles, setEmpSelectedFiles] = useState<File[]>([]);
+	const [isUploading, setIsUploading] = useState(false);
 
-        <footer className="w-full flex items-center justify-center border-t mx-auto text-center text-xs gap-8 py-16">
-          <p>
-            Powered by{" "}
-            <a
-              href="https://supabase.com/?utm_source=create-next-app&utm_medium=template&utm_term=nextjs"
-              target="_blank"
-              className="font-bold hover:underline"
-              rel="noreferrer"
-            >
-              Supabase
-            </a>
-          </p>
-          <ThemeSwitcher />
-        </footer>
-      </div>
-    </main>
-  );
+	selectedFiles = useMemo(
+		() => [...dailySelectedFiles, ...empSelectedFiles],
+		[dailySelectedFiles, empSelectedFiles],
+	);
+	const handleUpload = async () => {
+		if (selectedFiles.length === 0) {
+			alert("Please select files before uploading.");
+			return;
+		}
+
+		setIsUploading(true);
+
+		const formData = new FormData();
+		selectedFiles.forEach((file) => {
+			formData.append("files", file); // "files" is the field name your API expects
+		});
+
+		try {
+			const response = await fetch("/api/upload", {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!response.ok) throw new Error("Upload failed");
+			alert("Files uploaded successfully!");
+			setDailySelectedFiles([]); // Clear after upload
+			setEmpSelectedFiles([]); // Clear after upload
+		} catch (error: any) {
+			alert(`Error: ${error.message}`);
+		} finally {
+			setIsUploading(false);
+		}
+	};
+	return (
+		<div className="container mx-auto px-4 py-8 max-w-4xl">
+			<h1 className="text-3xl font-bold mb-8">Candidate Dashboard Generator</h1>
+
+			<div className="flex border-b mb-6">
+				<button
+					className={`py-2 px-4 font-medium ${
+						activeTab === "upload"
+							? "text-blue-600 border-b-2 border-blue-600"
+							: "text-gray-500 hover:text-gray-700"
+					}`}
+					onClick={() => setActiveTab("upload")}>
+					Upload Files
+				</button>
+				<button
+					className={`py-2 px-4 font-medium ${
+						activeTab === "files"
+							? "text-blue-600 border-b-2 border-blue-600"
+							: "text-gray-500 hover:text-gray-700"
+					}`}
+					onClick={() => setActiveTab("files")}>
+					Manage Files
+				</button>
+			</div>
+
+			{activeTab === "upload" && (
+				<div>
+					<div className="grid grid-cols-1 gap-6 mb-8">
+						<div className="border rounded-md p-4">
+							<h2 className="text-xl font-bold mb-4">Upload Files</h2>
+							<FileUpload
+								fileType="daily"
+								selectedFiles={dailySelectedFiles}
+								setSelectedFiles={setDailySelectedFiles}
+								isUploading={isUploading}
+							/>
+							<FileUpload
+								fileType="employee"
+								selectedFiles={empSelectedFiles}
+								setSelectedFiles={setEmpSelectedFiles}
+								isUploading={isUploading}
+							/>
+							<button
+								type="button"
+								onClick={handleUpload}
+								disabled={isUploading || selectedFiles.length === 0}
+								className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400">
+								{isUploading ? "Uploading..." : "Upload"}
+							</button>
+						</div>
+						<Dashboard />
+					</div>
+				</div>
+			)}
+
+			{activeTab === "files" && (
+				<div>
+					<FileList fileType="daily" />
+					<FileList fileType="employee" />
+				</div>
+			)}
+		</div>
+	);
 }
