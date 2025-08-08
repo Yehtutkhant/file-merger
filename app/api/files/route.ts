@@ -1,7 +1,7 @@
 import { getFiles } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
 	try {
 		const [dailyFiles, employeeFiles] = await Promise.all([
 			getFiles("daily"),
@@ -10,6 +10,8 @@ export async function GET(req: NextRequest) {
 
 		return NextResponse.json({ dailyFiles, employeeFiles }, { status: 200 });
 	} catch (error) {
+		console.log(error);
+
 		return NextResponse.json(
 			{ error: "Internal server error" },
 			{ status: 500 },

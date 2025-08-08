@@ -9,7 +9,7 @@ interface ProcessedResult {
 	teamMember: string;
 }
 
-export async function POST(req: NextRequest) {
+export async function POST() {
 	try {
 		const files = await getAllFilesData();
 		const dailyFiles = files.filter((f) => f.file_type === "daily");

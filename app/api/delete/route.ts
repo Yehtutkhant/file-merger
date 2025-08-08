@@ -1,7 +1,7 @@
 import { deleteFile } from "@/lib/db";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function DELETE(req: NextRequest, res: NextResponse) {
+export async function DELETE(req: NextRequest) {
 	try {
 		const id = await req.json();
 
@@ -11,6 +11,7 @@ export async function DELETE(req: NextRequest, res: NextResponse) {
 			return NextResponse.json({ error: "File not found" }, { status: 404 });
 		}
 	} catch (error) {
+		console.log(error);
 		return NextResponse.json(
 			{ error: "Internal server error" },
 			{ status: 500 },

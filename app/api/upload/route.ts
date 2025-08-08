@@ -6,7 +6,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
 	const formData = await req.formData();
 
-	// Get all files from the form data (assuming you send under 'files' key)
 	const files = formData.getAll("files") as File[];
 
 	if (!files.length) {

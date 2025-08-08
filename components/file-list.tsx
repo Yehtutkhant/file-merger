@@ -13,11 +13,6 @@ export default function FileList({
 }) {
 	const [files, setFiles] = useState<FileItem[]>([]);
 	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		fetchFiles();
-	}, [fileType]);
-
 	const fetchFiles = async () => {
 		setLoading(true);
 		try {
@@ -32,6 +27,9 @@ export default function FileList({
 			setLoading(false);
 		}
 	};
+	useEffect(() => {
+		fetchFiles();
+	}, [fileType, fetchFiles]);
 
 	const handleDelete = async (id: string) => {
 		if (!confirm("Are you sure you want to delete this file?")) return;

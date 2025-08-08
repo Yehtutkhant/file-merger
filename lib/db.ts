@@ -1,5 +1,5 @@
 import { createClient } from "./supabase/server";
-import fs from "fs";
+
 export const saveFileMetadata = async (
 	originalName: string,
 	fileType: "daily" | "employee",
