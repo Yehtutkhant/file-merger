@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import FileUpload from "@/components/file-upload";
 import FileList from "@/components/file-list";
 import Dashboard from "@/components/dashboard";
@@ -11,6 +11,7 @@ export default function Home() {
 	const [dailySelectedFiles, setDailySelectedFiles] = useState<File[]>([]);
 	const [empSelectedFiles, setEmpSelectedFiles] = useState<File[]>([]);
 	const [isUploading, setIsUploading] = useState(false);
+	const fileRef = useRef<HTMLInputElement>(null);
 
 	selectedFiles = useMemo(
 		() => [...dailySelectedFiles, ...empSelectedFiles],
@@ -74,18 +75,35 @@ export default function Home() {
 				<div>
 					<div className="grid grid-cols-1 gap-6 mb-8">
 						<div className="border rounded-md p-4">
-							<h2 className="text-xl font-bold mb-4">Upload Files</h2>
+							<div className="w-full flex items-center justify-between">
+								<h2 className="text-xl font-bold mb-4">Upload Files</h2>
+								<button
+									type="button"
+									onClick={() => {
+										if (fileRef.current) {
+											fileRef.current.value = ""; // clears native input
+										}
+										setDailySelectedFiles([]);
+										setEmpSelectedFiles([]);
+									}}
+									className="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 ">
+									Clear Files
+								</button>
+							</div>
+
 							<FileUpload
 								fileType="daily"
 								selectedFiles={dailySelectedFiles}
 								setSelectedFiles={setDailySelectedFiles}
 								isUploading={isUploading}
+								fileRef={fileRef}
 							/>
 							<FileUpload
 								fileType="employee"
 								selectedFiles={empSelectedFiles}
 								setSelectedFiles={setEmpSelectedFiles}
 								isUploading={isUploading}
+								fileRef={fileRef}
 							/>
 							<button
 								type="button"

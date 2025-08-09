@@ -1,5 +1,5 @@
 "use client";
-import { SetStateAction } from "react";
+import { RefObject, SetStateAction } from "react";
 
 type FileType = "daily" | "employee";
 
@@ -8,11 +8,13 @@ export default function FileUpload({
 	selectedFiles,
 	setSelectedFiles,
 	isUploading,
+	fileRef,
 }: {
 	fileType: FileType;
 	selectedFiles: File[];
 	setSelectedFiles: React.Dispatch<SetStateAction<File[]>>;
 	isUploading: boolean;
+	fileRef: RefObject<HTMLInputElement | null>;
 }) {
 	const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
 		if (!e.target.files) return;
@@ -28,6 +30,7 @@ export default function FileUpload({
 				Upload {fileType === "daily" ? "Daily Report" : "New Employee"} File(s)
 			</label>
 			<input
+				ref={fileRef}
 				type="file"
 				accept=".xls,.xlsx"
 				multiple
@@ -40,8 +43,6 @@ export default function FileUpload({
 					file:bg-blue-50 file:text-blue-700
 					hover:file:bg-blue-100"
 			/>
-
-			{/* List of selected files */}
 			{selectedFiles.length > 0 && (
 				<ul className="mt-2 text-sm text-gray-700">
 					{selectedFiles.map((file, idx) => (
